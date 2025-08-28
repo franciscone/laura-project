@@ -106,8 +106,7 @@ if uploaded_files:
     with col1:
         st.markdown(
             f"""
-            <br><br>
-            <div style="display: flex; align-items: right; height: 100%;">
+            <div style="display: flex; justify-content: right; align-items: right; height: 100%;">
                 <img src="data:image/png;base64,{img_base64}" width="50">
             </div>
             """,
