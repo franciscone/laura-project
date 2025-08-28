@@ -3,7 +3,7 @@ from docling.document_converter import DocumentConverter
 from huggingface_hub import InferenceClient
 import os
 
-load_dotenv()
+## load_dotenv()
 
 client = InferenceClient(
     provider="auto",
@@ -81,3 +81,4 @@ if uploaded_files:
     st.chat_message("assistant").markdown(completion.choices[0].message.content)
 
     
+
