@@ -24,30 +24,27 @@ def get_base64_image(img_path):
         data = f.read()
     return base64.b64encode(data).decode()
 
-def assistant_message(message, img_path="robo-laura.png"):
-    img_base64 = get_base64_image(img_path)
-    col1, col2 = st.columns([1, 10])
-    with col1:
-        st.markdown(
-            f"""
-            <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
-                <img src="data:image/png;base64,{img_base64}" width="50">
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-    with col2:
-        st.markdown(            
-            f"""
-            <div style="display: flex; align-items: left; height: 100%;">
-                <h4>{message}</h4>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+img_base64 = get_base64_image("robo-laura.png")
 
-if not uploaded_files:
-    assistant_message("Insira a documentação necessária para que eu possa resumir e listar os principais pontos para você!")
+col1, col2 = st.columns([1, 10])
+with col1:
+    st.markdown(
+        f"""
+        <div style="display: flex; justify-content: right; align-items: right; height: 100%;">
+            <img src="data:image/png;base64,{img_base64}" width="50">
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+with col2:
+    st.markdown(            
+        f"""
+        <div style="display: flex; align-items: left; height: 100%;">
+            <h4>Insira a documentação necessária para que eu possa resumir e listar os principais pontos para você.</h4>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 if uploaded_files:
     texts = []
@@ -104,5 +101,18 @@ if uploaded_files:
         max_tokens=150000
     )
 
-    assistant_message(completion.choices[0].message.content, img_path="robo-laura.png")
+    col1, col2 = st.columns([1, 10])
+
+    with col1:
+        st.markdown(
+            f"""
+            <br><br>
+            <div style="display: flex; align-items: right; height: 100%;">
+                <img src="data:image/png;base64,{img_base64}" width="50">
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+    with col2:
+        st.markdown(completion.choices[0].message.content)
 
