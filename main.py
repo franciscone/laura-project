@@ -45,76 +45,80 @@ with col2:
         """,
         unsafe_allow_html=True
     )
+try:
+    if uploaded_files:
+        if "texts" not in st.session_state:
+            st.session_state["texts"] = []
+            
+        texts = []
 
-if uploaded_files:
-    if "texts" not in st.session_state:
-        st.session_state["texts"] = []
-        
-    texts = []
+        for file in uploaded_files:
+            with open(file.name, "wb") as f:
+                f.write(file.getbuffer())
+            converter = DocumentConverter()
+            doc = converter.convert(file.name).document
+            texts.append(doc.export_to_markdown())
 
-    for file in uploaded_files:
-        with open(file.name, "wb") as f:
-            f.write(file.getbuffer())
-        converter = DocumentConverter()
-        doc = converter.convert(file.name).document
-        texts.append(doc.export_to_markdown())
+        completion = client.chat.completions.create(
+            model="openai/gpt-oss-20b",
+            messages=[
+                {
+                    "role": "system",
+                    "content": """
+                        Você é um robô auditor da SESA. Sua tarefa é ler e analisar um ou mais documentos apresentados.  
+                        ***Sempre*** responda no seguinte formato fixo em Markdown:
 
-    completion = client.chat.completions.create(
-        model="openai/gpt-oss-120b",
-        messages=[
-            {
-                "role": "system",
-                "content": """
-                    Você é um robô auditor da SESA. Sua tarefa é ler e analisar um ou mais documentos apresentados.  
-                    ***Sempre*** responda no seguinte formato fixo em Markdown:
+                        ### Análise do(s) Documento(s)
 
-                    ### Análise do(s) Documento(s)
+                        #### O que foi aprendido
+                        Liste em tópicos os principais aprendizados de cada documento, de forma clara e objetiva.
 
-                    #### O que foi aprendido
-                    Liste em tópicos os principais aprendizados de cada documento, de forma clara e objetiva.
+                        ### Comparação entre documentos
+                        Se houver mais de um documento:
+                        - Similaridades
+                        - Diferenças
+                        - Lacunas
+                        - Redundâncias
+                        - Complementaridades
 
-                    ### Comparação entre documentos
-                    Se houver mais de um documento:
-                    - Similaridades
-                    - Diferenças
-                    - Lacunas
-                    - Redundâncias
-                    - Complementaridades
+                        ### Como pode ser funcional
+                        Explique como os aprendizados podem ser úteis em diferentes áreas da SESA, e como podem apoiar decisões e operações.
 
-                    ### Como pode ser funcional
-                    Explique como os aprendizados podem ser úteis em diferentes áreas da SESA, e como podem apoiar decisões e operações.
+                        ### Perguntas que consigo responder
+                        Liste exemplos de perguntas que você poderia responder com base nos documentos.
 
-                    ### Perguntas que consigo responder
-                    Liste exemplos de perguntas que você poderia responder com base nos documentos.
+                        ### Métricas do aprendizado
+                        - **Nível de confiança**: 1-10
+                        - **Tipo de conteúdo identificado**: ex.: Lei, Licitação, Relatório, Outro
+                        - **Métricas adicionais**: adicione aqui qualquer métrica relevante dependendo do documento (ex.: quantidade de leis, número de artigos, quantidade de licitações, páginas de relatório, valores envolvidos, anos de publicação, órgãos envolvidos, indicadores, etc.)
 
-                    ### Métricas do aprendizado
-                    - **Nível de confiança**: 1-10
-                    - **Tipo de conteúdo identificado**: ex.: Lei, Licitação, Relatório, Outro
-                    - **Métricas adicionais**: adicione aqui qualquer métrica relevante dependendo do documento (ex.: quantidade de leis, número de artigos, quantidade de licitações, páginas de relatório, valores envolvidos, anos de publicação, órgãos envolvidos, indicadores, etc.)
-
-                    ---
-                    Sempre use o Markdown para visualização e coloque uma fonte mais minimalista.
-                """
-            },
-            {
-                "role": "user",
-                "content": "\n\n---\n\n".join(texts)
-            }
-        ],
-        max_tokens=150000
-    )
-
-    col1, col2 = st.columns([1, 10])
-
-    with col1:
-        st.markdown(
-            f"""
-            <div style="display: flex; justify-content: right; align-items: right; height: 100%;">
-                <img src="data:image/png;base64,{img_base64}" width="50">
-            </div>
-            """,
-            unsafe_allow_html=True
+                        ---
+                        Sempre use o Markdown para visualização e coloque uma fonte mais minimalista.
+                    """
+                },
+                {
+                    "role": "user",
+                    "content": "\n\n---\n\n".join(texts)
+                }
+            ],
+            max_tokens=4000
         )
-    with col2:
-        st.markdown(completion.choices[0].message.content)
 
+        col1, col2 = st.columns([1, 10])
+
+        with col1:
+            st.markdown(
+                f"""
+                <div style="display: flex; justify-content: right; align-items: right; height: 100%;">
+                    <img src="data:image/png;base64,{img_base64}" width="50">
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+        with col2:
+            st.markdown(completion.choices[0].message.content)
+
+except Exception as e:
+    st.error(f"Ocorreu um erro: {e}. Reiniciando sessão automaticamente...")
+    st.session_state.clear()
+    st.experimental_rerun()
