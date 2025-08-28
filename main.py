@@ -47,7 +47,7 @@ def assistant_message(message, img_path="robo-laura.png"):
         )
 
 if not uploaded_files:
-    assistant_message("Olá, insira a documentação necessária para que eu possa resumir e listar os principais pontos para você!")
+    assistant_message("Insira a documentação necessária para que eu possa resumir e listar os principais pontos para você!")
 
 if uploaded_files:
     texts = []
@@ -105,3 +105,4 @@ if uploaded_files:
     )
 
     assistant_message(completion.choices[0].message.content, img_path="robo-laura.png")
+
