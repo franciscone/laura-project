@@ -2,8 +2,9 @@ import streamlit as st
 from docling.document_converter import DocumentConverter
 from huggingface_hub import InferenceClient
 import os
+from dotenv import load_dotenv
 
-## load_dotenv()
+load_dotenv()
 
 client = InferenceClient(
     provider="auto",
