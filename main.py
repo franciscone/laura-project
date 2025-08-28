@@ -121,4 +121,4 @@ try:
 except Exception as e:
     st.error(f"Ocorreu um erro: {e}. Reiniciando sessão automaticamente...")
     st.session_state.clear()
-    st.experimental_rerun()
+    st.rerun()
