@@ -47,6 +47,9 @@ with col2:
     )
 
 if uploaded_files:
+    if "texts" not in st.session_state:
+        st.session_state["texts"] = []
+        
     texts = []
 
     for file in uploaded_files:
